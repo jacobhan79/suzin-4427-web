@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>수진동 4427 투자 대시보드</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="vendor/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">Redevelopment Investment · 수진동 4427</p>
+    <h1>수진동 4427 재개발 투자 대시보드</h1>
+    <p class="sub">수진2 구역 · 6층 상가 · 대지 92.45평 — 감평→현금청산 현금흐름·세금 모델 <span class="ver">v5</span></p>
+  </header>
+
+  <main>
+    <aside class="panel inputs">
+      <h2>가정값</h2>
+      <div id="baseControls"></div>
+      <p class="tmln" id="tmln"></p>
+      <div class="mlabel">미래 감평 예측 방식</div>
+      <div id="methodToggle" class="methodtoggle"></div>
+      <div id="methodControls"></div>
+      <p class="hint">슬라이더를 바꾸면 모든 탭이 즉시 갱신됩니다. 기본값은 <code>model/assumptions.json</code>.</p>
+    </aside>
+
+    <section class="content">
+      <nav class="tabs">
+        <button class="tab active" data-tab="summary">결론</button>
+        <button class="tab" data-tab="valuation">감평 근거</button>
+        <button class="tab" data-tab="cashflow">현금흐름·수익</button>
+      </nav>
+
+      <!-- ===== 결론 ===== -->
+      <div class="tabpane active" id="tab-summary">
+        <details class="risk">
+          <summary>모델 미반영 리스크 (펼쳐보기) — 아래 수치는 만실·무지연·감면 미반영 전제</summary>
+          <ul>
+            <li><b>무산</b>: 수진2 재개발 무산 시 현금청산 불가. 자산가치(수익환원~토지시세)가 매입가 하회 가능 — 최대 하방.</li>
+            <li><b>공실</b>: 모델은 만실(월 1,000만) 가정. 2층 공실·이주철거기 6~12개월 임대 단절은 미반영(이자는 계속).</li>
+            <li><b>시점 지연</b>: 수진2 민영·구역지정 前. 지연 시 보유비용↑·IRR↓.</li>
+            <li><b>세금</b>: 공익사업 수용 감면(조특법) 미반영(보수적). 법인→개인 인출 시 배당소득세 별도.</li>
+            <li><b>청산금 가정</b>: 개발이익 배제 0%(앵커가 감정 기준) — 보수 검증 시 좌측 배제율↑.</li>
+          </ul>
+        </details>
+        <div id="verdict" class="verdict"></div>
+        <div id="sumTimeline" class="timeline"></div>
+        <div id="cards" class="cards"></div>
+        <div class="sumgrid">
+          <div class="panel"><h2>가치평가 요약 (감평 근거)</h2><div id="sumVal"></div></div>
+          <div class="panel"><h2>현금흐름·세금 요약</h2><div id="sumCF"></div></div>
+        </div>
+        <div class="panel"><h2>예측 방식 비교 (세전·세후)</h2><div id="scenarioTable" class="tablewrap"></div></div>
+        <div class="panel chart"><h2>예측 방식별 총수익 (세전·세후) · 연도별 현금흐름</h2>
+          <div class="chart2"><canvas id="scenarioChart"></canvas><canvas id="cfMiniChart"></canvas></div></div>
+      </div>
+
+      <!-- ===== 감평 근거 ===== -->
+      <div class="tabpane" id="tab-valuation">
+        <div class="panel"><h2>① 비교사례 — "4427이 수진1에 있었다면" (시트1, 회장님 제공)</h2>
+          <p class="note">⭐ 전제: 아래는 4427이 <b>수진1구역 내에 위치했다면</b> 받았을 토지 감평(2025 수진1 감정 레벨)을 추정하는 근거다. 마지막 <b>4427 행 = 그 가정 하의 감평(2025)</b>. 이 값을 출발점으로 ③④에서 수진2 미래로 예측한다.</p>
+          <div id="sheet1Table" class="tablewrap"></div>
+          <p class="note" id="compNote"></p></div>
+        <div class="panel"><h2>② 건물 감평 (원가법) · 시점별</h2><div id="bldgTable" class="tablewrap"></div>
+          <p class="note">재개발 감정 기준시점 = 사업시행인가 고시일. 건물은 <b>경과연수↑로 감가</b>(잔가율↓), 재조달원가는 물가↑. 현재(2025)와 수진2 감평(<span id="bldgYear">2031</span>) 시점을 각각 산출한다.</p></div>
+        <div class="panel"><h2>③ 방식A — 지가상승률 보정 (토지 미래)</h2><div id="growthBox" class="flow"></div></div>
+        <div class="panel"><h2>④ 방식B — 분양가 역산 체인 (토지 미래, 추론모델)</h2><div id="presaleFlow" class="flow"></div>
+          <p class="note">근거: <code>ref/성남재개발_감정가_일반분양가_추론모델.md</code>. 84 일반분양가(사시) ×0.74(조합원) ×0.52(20평단독 감정)=×0.385 → 수진2 20평 감정 → ÷수진1 4.8억 = <b>비율(시점·구역 상승)</b> → ×수진1 대로변평당 <b>3,800만</b> → 4427 토지평당. ※1.58배는 대로변(3,800)÷다가구(2,400) 관계 설명일 뿐, 실제 곱셈은 비율만 적용.</p>
+          <h3 style="color:var(--cyan);font-size:13px;margin:14px 0 6px">계수 검증 (구역별 실측 대조)</h3>
+          <div id="presaleValid" class="tablewrap"></div></div>
+        <div class="panel"><h2>⑤ 산출 종합 — 방식별 감평 (전 케이스 비교)</h2><div id="valSummary" class="tablewrap"></div>
+          <p class="note">토지 미래 + 건물(감평연도) = 시세 감평. 청산 기준가 = 시세 감평 ×(1−개발이익 배제). 활성 방식은 좌측 토글로 선택(결론 탭에 반영).</p></div>
+        <div class="panel chart"><h2>⑥ 시점보정 근거 — R-ONE 지가지수 (2000~2025)</h2>
+          <div id="jigaRange" class="jigarange">차트를 <b>드래그</b>하면 해당 기간의 누적·연평균(CAGR) 상승률을 계산합니다.</div>
+          <canvas id="jigaChart"></canvas>
+          <p class="note" id="jigaNote"></p></div>
+      </div>
+
+      <!-- ===== 현금흐름·수익 ===== -->
+      <div class="tabpane" id="tab-cashflow">
+        <div class="panel"><h2>① 취득원가 · 투자원금</h2><div id="acqTable" class="tablewrap"></div></div>
+        <div class="panel"><h2>② 보유기간 운영 현금흐름 · 세무</h2><div id="opTable" class="tablewrap"></div></div>
+        <div class="panel"><h2>③ 출구: 청산·소송·세금</h2><div id="exitTable" class="tablewrap"></div></div>
+        <div class="panel chart"><h2>④ 연도별 현금흐름 (선택 시나리오)</h2><canvas id="cashflowChart"></canvas></div>
+        <div class="panel"><h2>⑤ 민감도 — 감평가 변동 → 수익·IRR</h2><div id="gridTable" class="tablewrap"></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>v5 — 2025 수진1-기준 감평을 ①지가상승률 또는 ②분양가 역산으로 미래 예측 → 청산금 → 법인세 → 세후 IRR. 매입 호가·예측 파라미터는 슬라이더 조정.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

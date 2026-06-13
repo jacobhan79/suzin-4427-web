@@ -1,0 +1,202 @@
+{
+  "_meta": {
+    "description": "수진동 4427 투자 모델 가정값 단일 출처. 대시보드(web/)가 로드, 문서(docs/)가 참조.",
+    "money_unit": "만원",
+    "rate_unit": "decimal (0.045 = 4.5%)",
+    "note": "값이 null/placeholder인 항목은 사용자 자료 또는 리서치로 확정 예정",
+    "last_updated": "2026-06-13"
+  },
+
+  "property": {
+    "address": "성남시 수정구 수진동 4427",
+    "zone": "수진2 재개발구역",
+    "land_area_pyeong": 92.45,
+    "land_area_sqm": 305.08,
+    "location": "대로변 + 8m도로 코너",
+    "building_floors": 6,
+    "building_floors_note": "6층(6층은 극소 공간, 실사용 거의 없음). 시트2(200평/1993)는 공식 샘플 — 무시",
+    "building_gfa_pyeong": 272.09,
+    "building_structure": "RC",
+    "build_year": 2003
+  },
+
+  "valuation": {
+    "land": {
+      "method": "대로변 상가 평당가 비교 → 4427 적용 + (대로변상가÷20평다가구) 비율 보조",
+      "sujin1_main_road_retail_per_pyeong_manwon": 3800,
+      "sujin1_main_road_retail_range_manwon": [3700, 3900],
+      "applied_per_pyeong_4427_manwon": 3800,
+      "comps_all_main_road": "87·88·89-1·92·1287·4427 모두 수진1·2 가로지르는 대로변 건물. 4427은 대로변+8m 코너",
+      "sujin1_dagagu_20pyeong_per_pyeong_manwon": 2500,
+      "sujin1_dagagu_note": "한경 검증: 단독 66㎡(20평) 감정 5억대 ≈ 평당 2,500만. 2,750은 공개출처 없음→보수적 2,500 채택",
+      "ratio_retail_to_dagagu": 1.52,
+      "ratio_note": "대로변상가 3,800 ÷ 20평 다가구 2,500 ≈ 1.52 (수진1 기준). 타구역 교차검증은 공개데이터 부재로 불가 → 수진1 앵커+시점보정에 의존",
+      "note": "토지평당가는 현재(2024-25) 수진1 레벨 = '수진1에 있었다면' 값. 수진2 4427 실제 감평은 시점보정 후"
+    },
+    "building": {
+      "method": "원가법: 연면적(평) × 재조달원가단가(구조) × 잔가율",
+      "replacement_cost_per_pyeong_won": { "RC": 3370000, "조적": 1780000, "블록": 1700000, "경량철골": 2200000 },
+      "durable_years": { "RC": 50, "조적": 45, "블록": 40, "경량철골": 38 },
+      "residual_floor": 0.1,
+      "residual_formula": "MAX(0.1, (내용연수 - (감평연도 - 준공연도)) / 내용연수)",
+      "construction_cost_inflation": 0.02,
+      "note": "4427: RC·272평·2003. 2026 감평시 잔가율 0.54→4.95억. 감평연도가 늦을수록 경과연수↑로 감가 증가"
+    },
+    "timepoint_adjustment": {
+      "base_year": 2025,
+      "base_note": "수진1 감평 레벨(2024-25)",
+      "target_year": 2031,
+      "target_note": "수진2 사업시행인가≈2030-31 → 감평 기준시점 ≈2031 (지정2026목표+4~5년)",
+      "method": "한국부동산원 지가변동률 기준. 수정구 2024=4.92%(전국2.15%의2.3배), 장기 CAGR 추정 4~5%",
+      "evidence": "전국 2017-24 누적 +30%→CAGR 3.4% / 수정구는 수도권·재개발 프리미엄으로 4~5% 추정. 2024 수정구 4.92%",
+      "annual_land_growth_rate": 0.045,
+      "growth_scenarios": { "conservative": 0.035, "base": 0.045, "optimistic": 0.055 },
+      "growth_evidence_rone": "R-ONE 지가지수 CAGR: 수정구 2000→25 3.95%·2015→25 4.73%, 수진동 2015→25 5.02%. 2024 수정구 +4.92%(뉴스 교차검증). data/landprice-jigato-2000-2025.csv",
+      "adjust_multiplier_2025_2031": { "conservative": 1.23, "base": 1.30, "optimistic": 1.38 }
+    }
+  },
+
+  "comparables_sujin1": {
+    "_note": "시트1 (회장님 제공). 토지평당=토지감평÷대지평(G열), 총액평당=감평총액÷대지평(T열). 볼드=실측팩트",
+    "columns": ["지번","특징","대지평","토지감평_억","토지평당_만원","건물연면적평","구조","준공","층","건물감평_억","감평총액_억","총액평당_만원"],
+    "rows": [
+      { "지번": "100",     "특징": "중국인 먹자골목 식당노래방",          "대지평": 84,    "토지감평_억": 29.0,  "토지평당_만원": 3452, "건물연면적평": 190, "구조": "-",   "준공": 1979, "층": 3, "건물감평_억": 1.0,  "감평총액_억": 30.0,  "총액평당_만원": 3571 },
+      { "지번": "88",      "특징": "신현대부동산",                       "대지평": 107.9, "토지감평_억": 40.57, "토지평당_만원": 3760, "건물연면적평": 302, "구조": "RC",  "준공": 2003, "층": 6, "건물감평_억": 5.50, "감평총액_억": 46.06, "총액평당_만원": 4270 },
+      { "지번": "89-1",    "특징": "홍소아과(2026-5 거래)",              "대지평": 50,    "토지감평_억": 19.66, "토지평당_만원": 3932, "건물연면적평": 119, "구조": "RC",  "준공": 1998, "층": 4, "건물감평_억": 2.12, "감평총액_억": 21.78, "총액평당_만원": 4356 },
+      { "지번": "92",      "특징": "코너 단층 (감평이미지 확보·앵커)",     "대지평": 111.6, "토지감평_억": 44.07, "토지평당_만원": 3948, "건물연면적평": 86,  "구조": "조적", "준공": 1997, "층": 1, "건물감평_억": 0.55, "감평총액_억": 44.61, "총액평당_만원": 3997 },
+      { "지번": "1287",    "특징": "코너 수진순대국, 92 맞은편",          "대지평": 101,   "토지감평_억": 37.69, "토지평당_만원": 3732, "건물연면적평": 60,  "구조": "조적", "준공": 1994, "층": 1, "건물감평_억": 0.31, "감평총액_억": 38.0,  "총액평당_만원": 3762 },
+      { "지번": "신흥5966","특징": "통보장어마을",                       "대지평": 106,   "토지감평_억": 43.65, "토지평당_만원": 4118, "건물연면적평": 287, "구조": "RC",  "준공": 1983, "층": 4, "건물감평_억": 1.35, "감평총액_억": 45.0,  "총액평당_만원": 4245 }
+    ]
+  },
+
+  "dagagu_timeline": {
+    "_note": "20평 다가구 토지 감평 시점별 (시트1 하단). 시점보정·전략2 기준",
+    "신흥2_2014": null,
+    "산성_2017_억": 3.1,
+    "수진1_2024_억": 5.5,
+    "신흥1_2025_억": 5.5,
+    "수진2_2032_억": null
+  },
+
+  "timeline": {
+    "_note": "사업시행인가 고시일 = 감정평가 기준시점. 인근 지정→사시인가 4~5년",
+    "sujin1_designation": "2020-12-31",
+    "sujin1_business_approval": "2024-12-30",
+    "sujin1_appraisal_notice": "2025-H1",
+    "sujin2_designation_target": 2026,
+    "sujin2_business_approval_est": "2030~2031",
+    "year_appraisal_est": 2031,
+    "year_mgmt_disposal_est": 2033,
+    "year_cash_settlement_est": "2033~2035",
+    "comps_designation_to_approval_years": { "신흥2": 1.1, "산성": 5.0, "신흥1": 5.0, "수진1": 4.0 }
+  },
+
+  "exit_cash_settlement": {
+    "_note": "현금청산 출구. (1) 시세기반 감평 → (2) 개발이익배제 할인 → 청산 기준가 → (3) 프리미엄/소송 증액",
+    "appraisal_market_based_manwon": 500000,
+    "appraisal_market_note": "Step2 평당가 모델 산출(2031, 토지+건물). 슬라이더 연동",
+    "dev_profit_exclusion_haircut": 0.0,
+    "haircut_note": "기본 0. 앵커가 수진1 2025 '감정평가 기준'(개발이익 이미 법적 배제)이고 지가상승률(일반 지가)로만 보정 → 추가 배제는 이중차감. 다운사이드 검증용으로만 슬라이더 상향.",
+    "appraisal_base_manwon": 500000,
+    "premium_range": [-0.15, 0.70],
+    "premium_applied": 0.0,
+    "litigation_uplift": 0.15,
+    "litigation_uplift_evidence": "수진동 88번지: 감평+27%≈59억 보상(개인의견). 보수 15% 채택",
+    "litigation_success_fee": 0.0,
+    "litigation_success_fee_note": "통상 증액분의 5~10%. 수임조건 확정시 입력"
+  },
+
+  "future_prediction": {
+    "_note": "2025 수진1-기준 감평을 미래로 예측하는 두 방식. 분양가역산은 ref/성남재개발_감정가_일반분양가_추론모델.md 기반",
+    "method_default": "growth",
+    "presale_general_eok": 17.5,
+    "presale_note": "2032 수진2 사시 기준 84타입 일반분양가(사시 책자 추정치). 수진1 2025 사시 12.6억, 신흥1 13.6억",
+    "johap_ratio": 0.74,
+    "appraisal_ratio": 0.52,
+    "combined_factor": 0.385,
+    "factor_note": "20평단독 감정 ≈ 84일반 ×0.74(조합원분양가) ×0.52(감정) = ×0.385. 2019년 이후 구역 검증(수진1 12.6→4.85≈실측4.8)",
+    "sujin1_20pyeong_appraisal_eok": 4.8,
+    "sujin1_dagagu_per_pyeong_manwon": 2400,
+    "sujin1_mainroad_per_pyeong_manwon": 3800,
+    "mainroad_multiple": 1.58,
+    "mainroad_note": "수진1 대로변 토지평당 3,800만 = 20평 다가구 평당 2,400만 × 약 1.58배 (시트1 92번지 3,948·범위 3,700~3,900과 정합)",
+    "chain_note": "일반분양가×0.385=수진2 20평단독감정 → ÷수진1 4.8억=비율 → ×수진1 대로변평당 3,800만(다가구×1.58배)=4427 토지평당 → ×92.45평=토지감평",
+    "validation": [
+      { "구역": "신흥1(2026)", "일반84_억": 13.6, "조합84_억": 9.94, "추정감정_억": 5.24, "실측_억": 5.2, "종전평당_만": 2272, "조합원평당_만": 2892, "일반평당_만": 4000, "비례율": "100.70%", "비고": "✓" },
+      { "구역": "수진1(2025)", "일반84_억": 12.6, "조합84_억": 9.62, "추정감정_억": 4.85, "실측_억": 4.8, "종전평당_만": 2168, "조합원평당_만": 2772, "일반평당_만": 3700, "비례율": "100.64%", "비고": "✓ 4427 인접" },
+      { "구역": "산성(2019)", "일반84_억": 7.41, "조합84_억": 5.99, "추정감정_억": 2.85, "실측_억": 3.1, "종전평당_만": 1746, "조합원평당_만": 1746, "일반평당_만": 2285, "비례율": "127.33%", "비고": "≈ 근사" },
+      { "구역": "신흥2(2016)", "일반84_억": 4.2, "조합84_억": 4.0, "추정감정_억": 1.62, "실측_억": 2.0, "종전평당_만": null, "조합원평당_만": 1180, "일반평당_만": 1240, "비례율": "102.89%", "비고": "✗ 예외(사시 일반≈조합원)" }
+    ],
+    "standalone_per_pyeong_manwon": 6000,
+    "standalone_note": "무산 시 자산가치 = 평당가 × 대지 92.45평 (러프). 2031 수진1 완공·대로변 출입구 건너 입지 반영, 현금청산 감평(개발이익 배제)보다 높을 수 있음(자유시장 매각).",
+    "standalone_cap_rate": 0.045
+  },
+
+  "cashflow_timeline": {
+    "year_buy": 2026,
+    "year_appraisal": 2031,
+    "year_settlement": 2032,
+    "year_litigation": 2035,
+    "holding_years": 6,
+    "note": "회장님 최신: 감평31·관처~32·청산32·소송2035. redev_model.xlsx는 감평32·청산33(보유7년). 슬라이더로 조정"
+  },
+
+  "financing": {
+    "purchase_price_manwon": 360000,
+    "purchase_note": "redev_model.xlsx 매입가 36억. 실제 호가 확인필요",
+    "ltv": 0.70,
+    "loan_manwon": 252000,
+    "interest_rate": 0.045,
+    "interest_only": true,
+    "annual_interest_manwon": 11340
+  },
+
+  "acquisition_costs": {
+    "acquisition_tax_rate": 0.046,
+    "acquisition_tax_note": "법인 5년 경과 → 중과 배제, 일반 4.6%",
+    "brokerage_rate": 0.009,
+    "legal_etc_manwon": 500,
+    "vat_building_credit_available": false,
+    "vat_note": "매도자 개인 → 부가세 환급 불가, 매입가 전액 원가"
+  },
+
+  "lease": {
+    "deposit_manwon": 20000,
+    "monthly_rent_current_manwon": 800,
+    "monthly_rent_full_manwon": 1000,
+    "annual_rent_manwon": 12000,
+    "vacancy_rate": 0.0,
+    "vacancy_note": "모델은 만실 가정. 이주·철거기 6~12개월 공실 리스크 별도(미반영)"
+  },
+
+  "operating_costs": {
+    "maintenance_annual_manwon": 600,
+    "property_tax_annual_manwon": 1000,
+    "property_tax_note": "종부세 해당 없음(토지 별도합산 80억 미만)"
+  },
+
+  "cashflow_rules": {
+    "_note": "운영CF 흑자→재투자 수익계상, 적자→사전적립하여 투자원금 가산",
+    "reinvest_rate": 0.03,
+    "deposit_rate": 0.015,
+    "annual_operating_cf_manwon": -940
+  },
+
+  "tax": {
+    "corp_tax_rate_low": 0.099,
+    "corp_tax_rate_high": 0.209,
+    "corp_tax_threshold_manwon": 20000,
+    "corp_tax_note": "지방소득세 포함. 2억 이하 9.9% / 초과 20.9%",
+    "depreciation_building_ratio": 0.30,
+    "depreciation_useful_life": 40,
+    "corp_extra_capital_gains_applies": false,
+    "corp_extra_note": "상가→법인세법 §55의2 추가과세 비대상(주택·비사업용토지·입주권만)"
+  },
+
+  "scenarios": {
+    "base":       { "label": "기준 (감평 기준가)",    "exit": "settlement", "premium": 0.0,   "growth": 0.045 },
+    "optimistic": { "label": "낙관 (감평 +30%)",      "exit": "settlement", "premium": 0.30,  "growth": 0.06 },
+    "pessimistic":{ "label": "비관 (감평 -15%·지연)", "exit": "settlement", "premium": -0.15, "growth": 0.03, "extra_delay_years": 2 },
+    "failed":     { "label": "무산 (standalone)",     "exit": "standalone", "cap_rate": 0.045 }
+  }
+}
