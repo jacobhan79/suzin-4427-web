@@ -203,6 +203,10 @@ function breakEvenAppraisal(c){let lo=0,hi=2000000;const f=s=>outcome(c,s,true).
 // ===== 렌더 =====
 function render(){ renderSummary(); if(activeTab==="valuation")renderValuation(); if(activeTab==="cashflow")renderCashflow(); }
 const card=(k,v,cls="")=>`<div class="card"><div class="k">${k}</div><div class="v ${cls}">${v}</div></div>`;
+// 두 평가방법 값을 "금액(평가방법)" 형식으로 병기하는 카드
+const card2=(k,gv,pv,fmt,cls="")=>`<div class="card"><div class="k">${k}</div><div class="v2 ${cls}">`
+  +`<div><span>${fmt(gv)}</span><i>지가상승률</i></div>`
+  +`<div><span>${fmt(pv)}</span><i>분양가역산</i></div></div></div>`;
 const mlabel=()=>state.method==="growth"?"지가상승률":"분양가 역산";
 
 const rng=(a,b,fmt)=>{const lo=Math.min(a,b),hi=Math.max(a,b);return Math.abs(a-b)<1e-6?fmt(a):`${fmt(lo)} ~ ${fmt(hi)}`;};
@@ -216,17 +220,23 @@ function renderSummary(){
   document.getElementById("sumTimeline").innerHTML=tl.map((t,i)=>
     `<div class="tnode"><span class="yr">${t[1]}</span><span>${t[0]}</span></div>`+(i<tl.length-1?`<div class="tbar"></div>`:""))
     .join("")+`<div class="tnode"><span class="yr">${r.settlementYear-buy}년</span><span>보유(청산까지)</span></div>`;
+  const mLine=(nm,x,active)=>`<div class="vl${active?' on':''}"><b class="mname">${nm}</b>`
+    +` 미래감평 <b>${eok(x.marketApp)}</b>(${r.appraisalYear}) → 청산세후 ${eok(x.recoverNet)}`
+    +` <span class="plus">+ 수용재결 ${eok(x.litNet)}</span> = <b class="tot">총회수 ${eok(x.recoverNet+x.litNet)}</b>`
+    +` · 세후수익 <b class="${x.afterTaxTotal>=0?'g':'b'}">${eok(x.afterTaxTotal)}</b>(IRR ${pct(x.irrAfter)})</div>`;
   document.getElementById("verdict").innerHTML=
-    `예측 두 방식 — 미래 감평가 <b>${rng(g.marketApp,pr.marketApp,eok)}</b>(${r.appraisalYear}) · 청산금 ${rng(g.settlement,pr.settlement,eok)}(${r.settlementYear}) + 소송 +${pct(state.litUplift)}(${r.litYear}).`
-    +`<br>세전 총수익 <b>${rng(g.preTaxTotal,pr.preTaxTotal,eok)}</b>(IRR ${pct(irrPLo)}~${pct(irrPHi)}) · 세후 총수익 <b>${rng(g.afterTaxTotal,pr.afterTaxTotal,eok)}</b>(IRR ${pct(irrALo)}~${pct(irrAHi)}). 손익분기 감평가 ≈ <b>${eok(be)}</b>. 무산 시 매각 <b>${eok(sa.assetValue)}</b>→세후 ${eok(sa.total)}.`;
+    mLine("방식A 지가상승률",g,state.method==="growth")
+    +mLine("방식B 분양가역산",pr,state.method==="presale")
+    +`<div class="vl sub">소송(수용재결) 증액률 +${pct(state.litUplift)} 적용(${r.litYear} 별도수령) · `
+    +`손익분기 감평가 ≈ <b>${eok(be)}</b> · 무산 시 매각 <b>${eok(sa.assetValue)}</b> → 세후 ${eok(sa.total)}</div>`;
   document.getElementById("cards").innerHTML=
-    card("미래 감평가("+r.appraisalYear+")",rng(g.marketApp,pr.marketApp,eok))+
-    card("청산금("+r.settlementYear+")",rng(g.settlement,pr.settlement,eok))+
+    card2("미래 감평가("+r.appraisalYear+")",g.marketApp,pr.marketApp,eok)+
+    card2("청산금("+r.settlementYear+")",g.settlement,pr.settlement,eok)+
+    card2("수용재결 증액·세후("+r.litYear+")",g.litNet,pr.litNet,eok)+
+    card2("세후 총회수(청산+수용재결)",g.recoverNet+g.litNet,pr.recoverNet+pr.litNet,eok)+
+    card2("세후 총수익(원금차감)",g.afterTaxTotal,pr.afterTaxTotal,eok,irrALo>=0?"good":"bad")+
+    card2("세후 IRR",g.irrAfter,pr.irrAfter,pct,irrALo>=0?"good":"bad")+
     card("총 투자원금",eok(g.investPrincipal))+
-    card("세전 총수익",rng(g.preTaxTotal,pr.preTaxTotal,eok),irrPLo>=0?"good":"bad")+
-    card("세후 총수익",rng(g.afterTaxTotal,pr.afterTaxTotal,eok),irrALo>=0?"good":"bad")+
-    card("세전 IRR",`${pct(irrPLo)}~${pct(irrPHi)}`,irrPLo>=0?"good":"bad")+
-    card("세후 IRR",`${pct(irrALo)}~${pct(irrAHi)}`,irrALo>=0?"good":"bad")+
     card("무산 매각가치",eok(sa.assetValue),sa.total>=0?"good":"bad");
   // 가치평가 요약
   const lg=landFuture("growth"), lp=landFuture("presale");

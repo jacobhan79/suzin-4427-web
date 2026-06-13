@@ -93,6 +93,21 @@ code{background:rgba(127,227,255,.13);color:var(--cyan);padding:1px 5px;border-r
 .verdict{background:linear-gradient(160deg,rgba(95,224,154,.10),rgba(127,227,255,.05));
   border:1px solid rgba(95,224,154,.28);border-radius:14px;padding:16px 20px;margin-bottom:18px;font-size:14.5px;line-height:1.7}
 .verdict b{color:var(--gold)}
+.verdict .vl{padding:4px 0;font-size:13.5px;line-height:1.65}
+.verdict .mname{display:inline-block;min-width:104px;color:var(--cyan);font-weight:700}
+.verdict .vl.on .mname{color:var(--gold)}
+.verdict .vl.on{background:rgba(240,210,138,.06);border-radius:8px;padding:6px 10px;margin:0 -4px}
+.verdict .vl .plus{color:var(--violet)}
+.verdict .vl .tot{color:var(--gold)}
+.verdict .vl b.g{color:var(--green)} .verdict .vl b.b{color:var(--red)}
+.verdict .vl.sub{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.verdict .vl.sub b{color:var(--gold)}
+/* 2-방법 병기 카드 */
+.card .v2{margin-top:6px;display:flex;flex-direction:column;gap:5px}
+.card .v2>div{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card .v2 span{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.card .v2 i{font-size:10px;color:var(--faint);font-style:normal;white-space:nowrap}
+.card .v2.good span{color:var(--green)} .card .v2.bad span{color:var(--red)}
 .qm{display:inline-block;width:13px;height:13px;line-height:13px;text-align:center;border-radius:50%;
   background:var(--line);color:var(--muted);font-size:9px;font-weight:700;cursor:help;vertical-align:1px}
 .control{position:relative}
