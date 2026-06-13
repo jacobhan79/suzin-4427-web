@@ -208,6 +208,9 @@ const card2=(k,gv,pv,fmt,cls="")=>`<div class="card"><div class="k">${k}</div><d
   +`<div><span>${fmt(gv)}</span><i>지가상승률</i></div>`
   +`<div><span>${fmt(pv)}</span><i>분양가역산</i></div></div></div>`;
 const mlabel=()=>state.method==="growth"?"지가상승률":"분양가 역산";
+// 선택된 미래감평 예측방식 배지 (혼동 방지)
+const methodFull=()=>state.method==="growth"?"방식A · 지가상승률":"방식B · 분양가역산";
+const methodBadge=(prefix="선택된 미래감평 예측방식")=>`<div class="mbadge ${state.method}">${prefix}: <b>${methodFull()}</b></div>`;
 
 const rng=(a,b,fmt)=>{const lo=Math.min(a,b),hi=Math.max(a,b);return Math.abs(a-b)<1e-6?fmt(a):`${fmt(lo)} ~ ${fmt(hi)}`;};
 function renderSummary(){
@@ -221,9 +224,9 @@ function renderSummary(){
     `<div class="tnode"><span class="yr">${t[1]}</span><span>${t[0]}</span></div>`+(i<tl.length-1?`<div class="tbar"></div>`:""))
     .join("")+`<div class="tnode"><span class="yr">${r.settlementYear-buy}년</span><span>보유(청산까지)</span></div>`;
   const mLine=(nm,x,active)=>`<div class="vl${active?' on':''}"><b class="mname">${nm}</b>`
-    +` 미래감평 <b>${eok(x.marketApp)}</b>(${r.appraisalYear}) → 청산세후 ${eok(x.recoverNet)}`
-    +` <span class="plus">+ 수용재결 ${eok(x.litNet)}</span> = <b class="tot">총회수 ${eok(x.recoverNet+x.litNet)}</b>`
-    +` · 세후수익 <b class="${x.afterTaxTotal>=0?'g':'b'}">${eok(x.afterTaxTotal)}</b>(IRR ${pct(x.irrAfter)})</div>`;
+    +` 미래감평 <b>${eok(x.marketApp)}</b>(${r.appraisalYear})`
+    +` <span class="plus">+ 세전 수용재결 ${eok(x.litGross)}</span> = 세전 청산금 <b class="tot">${eok(x.settlement+x.litGross)}</b>`
+    +` → 세후 총회수 ${eok(x.recoverNet+x.litNet)} · 세후수익 <b class="${x.afterTaxTotal>=0?'g':'b'}">${eok(x.afterTaxTotal)}</b>(IRR ${pct(x.irrAfter)})</div>`;
   document.getElementById("verdict").innerHTML=
     mLine("방식A 지가상승률",g,state.method==="growth")
     +mLine("방식B 분양가역산",pr,state.method==="presale")
@@ -231,8 +234,8 @@ function renderSummary(){
     +`손익분기 감평가 ≈ <b>${eok(be)}</b> · 무산 시 매각 <b>${eok(sa.assetValue)}</b> → 세후 ${eok(sa.total)}</div>`;
   document.getElementById("cards").innerHTML=
     card2("미래 감평가("+r.appraisalYear+")",g.marketApp,pr.marketApp,eok)+
-    card2("청산금("+r.settlementYear+")",g.settlement,pr.settlement,eok)+
-    card2("수용재결 증액·세후("+r.litYear+")",g.litNet,pr.litNet,eok)+
+    card2("세전 수용재결 증액("+r.litYear+")",g.litGross,pr.litGross,eok)+
+    card2("세전 청산금 (감평+증액)",g.settlement+g.litGross,pr.settlement+pr.litGross,eok)+
     card2("세후 총회수(청산+수용재결)",g.recoverNet+g.litNet,pr.recoverNet+pr.litNet,eok)+
     card2("세후 총수익(원금차감)",g.afterTaxTotal,pr.afterTaxTotal,eok,irrALo>=0?"good":"bad")+
     card2("세후 IRR",g.irrAfter,pr.irrAfter,pct,irrALo>=0?"good":"bad")+
@@ -248,17 +251,18 @@ function renderSummary(){
     +kvr("4427 토지평당 (A / B)",Math.round(lg.val/A.property.land_area_pyeong).toLocaleString()+" / "+Math.round(lp.val/A.property.land_area_pyeong).toLocaleString()+"만")
     +kvr("앵커","수진1 92번지 토지평당 3,948만(감평이미지)")+`</div>`;
   // 현금흐름·세금 요약 (활성 방식)
-  document.getElementById("sumCF").innerHTML=`<div class="kv">`
+  document.getElementById("sumCF").innerHTML=methodBadge()+`<div class="kv">`
     +kvr("매입가 → 총취득원가",eok(r.totalCost-r.acqTax-r.broker-r.legal)+" → "+eok(r.totalCost))
     +kvr("자기자본 + 적자적립 = 투자원금",eok(r.investPrincipal),true)
     +kvr("연 운영CF (적자→사전적립)",eok(r.opCF))
-    +kvr(`청산금(${r.settlementYear})`,eok(r.settlement))
+    +kvr(`협의 청산금(${r.settlementYear}) + 세전 수용재결(${r.litYear})`,eok(r.settlement)+" + "+eok(r.litGross))
+    +kvr("= 세전 청산금 (감평+증액)",eok(r.settlement+r.litGross),true)
     +kvr("− 대출·보증금 / 법인세",eok(r.loan+r.deposit)+" / "+eok(r.tax))
-    +kvr("세후 순회수(청산) + 소송금",eok(r.recoverNet)+" + "+eok(r.litNet),true)+`</div>`;
+    +kvr("세후 순회수(청산) + 세후 수용재결",eok(r.recoverNet)+" + "+eok(r.litNet),true)+`</div>`;
   // 비교표 (세전·세후)
-  let h=`<table><thead><tr><th>예측 방식</th><th>미래 감평</th><th>청산금</th><th>세전수익</th><th>세전IRR</th><th>세후수익</th><th>세후IRR</th></tr></thead><tbody>`;
+  let h=`<table><thead><tr><th>예측 방식</th><th>미래 감평</th><th>세전 청산금<br><small>감평+증액</small></th><th>세전수익</th><th>세전IRR</th><th>세후수익</th><th>세후IRR</th></tr></thead><tbody>`;
   [["방식A 지가상승률","growth",g],["방식B 분양가역산","presale",pr]].forEach(([l,m,x])=>{
-    h+=`<tr class="${state.method===m?'hl':''}"><td>${l}</td><td>${eok(x.marketApp)}</td><td>${eok(x.settlement)}</td><td>${eok(x.preTaxTotal)}</td><td>${pct(x.irrPre)}</td><td>${eok(x.afterTaxTotal)}</td><td>${pct(x.irrAfter)}</td></tr>`;});
+    h+=`<tr class="${state.method===m?'hl':''}"><td>${l}</td><td>${eok(x.marketApp)}</td><td>${eok(x.settlement+x.litGross)}</td><td>${eok(x.preTaxTotal)}</td><td>${pct(x.irrPre)}</td><td>${eok(x.afterTaxTotal)}</td><td>${pct(x.irrAfter)}</td></tr>`;});
   h+=`<tr><td>무산 (매각 평당 ${sa.perPyeong.toLocaleString()}만)</td><td>${eok(sa.assetValue)}</td><td>—</td><td>${eok(sa.net-sa.investPrincipal)}</td><td>—</td><td>${eok(sa.total)}</td><td>—</td></tr></tbody></table>`;
   document.getElementById("scenarioTable").innerHTML=h;
   if(activeTab==="summary"){
@@ -364,17 +368,19 @@ function renderCashflow(){
     +row("연 임대료",eok(r.annualRent))+row("− 이자",eok(r.interest))+row("− 유지보수+보유세",eok(r.maint+r.ptax))
     +row("연 운영CF",eok(r.opCF),r.opCF<0?"hl":"")
     +row("연 감가상각",eok(r.annualDep))+row(`이월결손금(${r.holding}년)`,eok(r.lossCarry))+row("청산시 장부가액",eok(r.bookValue))+`</tbody></table>`;
-  document.getElementById("exitTable").innerHTML=`<table><tbody>`
-    +row(`청산금 (${r.settlementYear})`,eok(r.settlement),"hl")
+  document.getElementById("exitTable").innerHTML=methodBadge("청산금 산정에 반영된 예측방식")+`<table><tbody>`
+    +row(`협의 청산금 (${r.settlementYear}, = 미래 감평)`,eok(r.settlement),"hl")
+    +row(`+ 세전 수용재결 증액 (${r.litYear}, +${pct(state.litUplift)})`,eok(r.litGross))
+    +row("= 세전 청산금 (감평+증액)",eok(r.settlement+r.litGross),"hl")
     +row("− 대출상환·보증금반환",eok(r.loan+r.deposit))+row("처분이익",eok(r.dispGain))+row("과세표준(결손공제후)",eok(r.taxBase))+row("법인세",eok(r.tax))
     +row("세후 순회수(청산)",eok(r.recoverNet),"hl")
-    +row(`소송 증액 +${pct(state.litUplift)} (${r.litYear})`,eok(r.litGross))+row("세후 소송금",eok(r.litNet))
+    +row("세후 수용재결 증액",eok(r.litNet))
     +row("세후 총수익",eok(r.afterTaxTotal),"hl")+row("세후 IRR",pct(r.irrAfter),"hl")+`</tbody></table>`;
   // 민감도: 감평가 ±
   const c=buildCtx(state.method), base=c.appraisalBase;
-  let g=`<table><thead><tr><th>감평가</th><th>청산금</th><th>세후수익</th><th>세후IRR</th></tr></thead><tbody>`;
+  let g=`<table><thead><tr><th>감평가</th><th>세전 청산금<br><small>감평+증액</small></th><th>세후수익</th><th>세후IRR</th></tr></thead><tbody>`;
   [-0.2,-0.1,0,0.1,0.2].forEach(d=>{const s=base*(1+d);const o=outcome(c,s,true);
-    g+=`<tr class="${d===0?'hl':''}"><td>${d>0?"+":""}${(d*100).toFixed(0)}% (${eok(s)})</td><td>${eok(o.settlement)}</td><td>${eok(o.afterTaxTotal)}</td><td>${pct(o.irrAfter)}</td></tr>`;});
+    g+=`<tr class="${d===0?'hl':''}"><td>${d>0?"+":""}${(d*100).toFixed(0)}% (${eok(s)})</td><td>${eok(o.settlement+o.litGross)}</td><td>${eok(o.afterTaxTotal)}</td><td>${pct(o.irrAfter)}</td></tr>`;});
   g+=`</tbody></table>`;
   document.getElementById("gridTable").innerHTML=g;
   if(cashflowChart)cashflowChart.destroy();
