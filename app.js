@@ -405,27 +405,36 @@ function jigaStats(){
   el.innerHTML=`<b>${y0}~${y1}</b> (${yrs}년) — 수정구 누적 <b>${(cum*100).toFixed(1)}%</b> · 연평균 CAGR <b>${(cagr*100).toFixed(2)}%</b>${extra}`;
 }
 
-// 파라미터 패널 — 모바일: 바텀시트 오버레이 / 데스크톱: 사이드바 인라인 접기
+// 레이아웃 변경(가로 접기) 후 차트 크기 재조정 — 그리드 트랜지션(0.3s) 종료 시점
+window._chartsResize=()=>{ setTimeout(()=>{
+  [scenarioChart,cashflowChart,jigaChart,window._cfMini].forEach(c=>{ try{ c&&c.resize&&c.resize(); }catch(e){} });
+}, 340); };
+
+// 파라미터 패널 — 모바일: 바텀시트 오버레이 / 데스크톱: 사이드바 가로 접기
 function wireInputsToggle(){
-  const panel=document.getElementById("inputsPanel"),
+  const main=document.querySelector("main"),
+        panel=document.getElementById("inputsPanel"),
         btn=document.getElementById("inputsToggle"),
         fab=document.getElementById("paramFab"),
         backdrop=document.getElementById("inputsBackdrop");
-  if(!panel||!btn)return;
+  if(!panel||!btn||!main)return;
   const mq=window.matchMedia("(max-width:820px)");
   const isMobile=()=>mq.matches;
+  // 모바일: 바텀시트 오버레이
   const openSheet=()=>{ panel.classList.add("open"); backdrop&&backdrop.classList.add("open");
     document.body.classList.add("sheet-open"); btn.setAttribute("aria-expanded","true"); };
   const closeSheet=()=>{ panel.classList.remove("open"); backdrop&&backdrop.classList.remove("open");
     document.body.classList.remove("sheet-open"); btn.setAttribute("aria-expanded","false"); };
-  const setCollapsed=c=>{ panel.classList.toggle("collapsed",c); btn.setAttribute("aria-expanded",String(!c)); };
-  // 헤더 클릭: 모바일=닫기 / 데스크톱=인라인 토글
-  btn.addEventListener("click",()=>{ isMobile()?closeSheet():setCollapsed(!panel.classList.contains("collapsed")); });
+  // 데스크톱: 사이드바를 옆으로(가로) 접기 → 본문 확장
+  const setRail=c=>{ main.classList.toggle("params-collapsed",c); btn.setAttribute("aria-expanded",String(!c));
+    if(window._chartsResize)window._chartsResize(); };
+  // 헤더 클릭: 모바일=시트 닫기 / 데스크톱=가로 접기 토글
+  btn.addEventListener("click",()=>{ isMobile()?closeSheet():setRail(!main.classList.contains("params-collapsed")); });
   fab&&fab.addEventListener("click",openSheet);
   backdrop&&backdrop.addEventListener("click",closeSheet);
   document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&isMobile())closeSheet(); });
-  // 모드 초기화/전환 (모바일=닫힘+펼침상태, 데스크톱=사이드바 펼침)
-  const applyMode=()=>{ closeSheet(); panel.classList.remove("collapsed"); };
+  // 모드 초기화/전환
+  const applyMode=()=>{ closeSheet(); main.classList.remove("params-collapsed"); };
   applyMode();
   mq.addEventListener?mq.addEventListener("change",applyMode):window.addEventListener("resize",applyMode);
 }

@@ -42,11 +42,23 @@ main{display:grid;grid-template-columns:340px 1fr;gap:18px;padding:8px 32px 60px
   margin-right:9px;background:linear-gradient(150deg,var(--cyan),var(--violet))}
 .inputs-toggle .it-hint{margin-left:auto;font-size:11px;color:var(--faint);font-weight:500}
 .inputs-toggle .chev{font-size:12px;color:var(--muted);transition:transform .22s ease;margin-left:6px}
-.inputs.collapsed .inputs-toggle .chev{transform:rotate(-90deg)}
-.inputs.collapsed .inputs-toggle{margin-bottom:0}
-.inputs.collapsed .inputs-body{display:none}
 /* 모바일 오버레이 요소들 — 데스크톱에선 숨김 */
 .sheet-handle,.param-fab,.inputs-backdrop{display:none}
+
+/* ===== 데스크톱: 파라미터 사이드바 가로(옆으로) 접기 ===== */
+@media(min-width:821px){
+  main{transition:grid-template-columns .3s cubic-bezier(.4,0,.2,1)}
+  .inputs-toggle .chev{transform:rotate(-90deg)}               /* ◂ : 옆으로 접기 */
+  main.params-collapsed{grid-template-columns:46px 1fr}
+  main.params-collapsed .inputs{padding:16px 6px;overflow:hidden}
+  main.params-collapsed .inputs-body{display:none}
+  main.params-collapsed .inputs-toggle{flex-direction:column;align-items:center;justify-content:flex-start;
+    gap:14px;margin:0;width:100%}
+  main.params-collapsed .inputs-toggle .it-title{writing-mode:vertical-rl;letter-spacing:.06em;font-size:14px}
+  main.params-collapsed .inputs-toggle .it-title::before{display:none}
+  main.params-collapsed .inputs-toggle .it-hint{display:none}
+  main.params-collapsed .inputs-toggle .chev{margin:0;transform:rotate(90deg)}  /* ▸ : 펼치기 */
+}
 .control{margin-bottom:13px}
 .control label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
 .control .row{display:flex;align-items:center;gap:9px}
