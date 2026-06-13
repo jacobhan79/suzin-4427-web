@@ -404,4 +404,17 @@ function jigaStats(){
   if(sd&&sd[a]!=null&&sd[b]!=null){ const cd=Math.pow(sd[b]/sd[a],1/yrs)-1; extra=` / 수진동 CAGR <b>${(cd*100).toFixed(2)}%</b>`; }
   el.innerHTML=`<b>${y0}~${y1}</b> (${yrs}년) — 수정구 누적 <b>${(cum*100).toFixed(1)}%</b> · 연평균 CAGR <b>${(cagr*100).toFixed(2)}%</b>${extra}`;
 }
+
+// 가정값 패널 접기/펼치기 (모바일에선 기본 접힘)
+function wireInputsToggle(){
+  const panel=document.getElementById("inputsPanel"), btn=document.getElementById("inputsToggle");
+  if(!panel||!btn)return;
+  const isMobile=()=>window.matchMedia("(max-width:820px)").matches;
+  const set=c=>{ panel.classList.toggle("collapsed",c); btn.setAttribute("aria-expanded",String(!c)); };
+  let userTouched=false;
+  set(isMobile());
+  btn.addEventListener("click",()=>{ userTouched=true; set(!panel.classList.contains("collapsed")); });
+  window.addEventListener("resize",()=>{ if(!userTouched) set(isMobile()); });
+}
+wireInputsToggle();
 init();

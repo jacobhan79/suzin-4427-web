@@ -16,14 +16,20 @@
   </header>
 
   <main>
-    <aside class="panel inputs">
-      <h2>가정값</h2>
-      <div id="baseControls"></div>
-      <p class="tmln" id="tmln"></p>
-      <div class="mlabel">미래 감평 예측 방식</div>
-      <div id="methodToggle" class="methodtoggle"></div>
-      <div id="methodControls"></div>
-      <p class="hint">슬라이더를 바꾸면 모든 탭이 즉시 갱신됩니다. 기본값은 <code>model/assumptions.json</code>.</p>
+    <aside class="panel inputs" id="inputsPanel">
+      <button class="inputs-toggle" id="inputsToggle" aria-expanded="true" aria-controls="inputsBody">
+        <span class="it-title">가정값</span>
+        <span class="it-hint">파라미터 조정</span>
+        <span class="chev" aria-hidden="true">▾</span>
+      </button>
+      <div class="inputs-body" id="inputsBody">
+        <div id="baseControls"></div>
+        <p class="tmln" id="tmln"></p>
+        <div class="mlabel">미래 감평 예측 방식</div>
+        <div id="methodToggle" class="methodtoggle"></div>
+        <div id="methodControls"></div>
+        <p class="hint">슬라이더를 바꾸면 모든 탭이 즉시 갱신됩니다. 기본값은 <code>model/assumptions.json</code>.</p>
+      </div>
     </aside>
 
     <section class="content">
