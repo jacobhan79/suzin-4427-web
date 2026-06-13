@@ -405,16 +405,29 @@ function jigaStats(){
   el.innerHTML=`<b>${y0}~${y1}</b> (${yrs}년) — 수정구 누적 <b>${(cum*100).toFixed(1)}%</b> · 연평균 CAGR <b>${(cagr*100).toFixed(2)}%</b>${extra}`;
 }
 
-// 가정값 패널 접기/펼치기 (모바일에선 기본 접힘)
+// 파라미터 패널 — 모바일: 바텀시트 오버레이 / 데스크톱: 사이드바 인라인 접기
 function wireInputsToggle(){
-  const panel=document.getElementById("inputsPanel"), btn=document.getElementById("inputsToggle");
+  const panel=document.getElementById("inputsPanel"),
+        btn=document.getElementById("inputsToggle"),
+        fab=document.getElementById("paramFab"),
+        backdrop=document.getElementById("inputsBackdrop");
   if(!panel||!btn)return;
-  const isMobile=()=>window.matchMedia("(max-width:820px)").matches;
-  const set=c=>{ panel.classList.toggle("collapsed",c); btn.setAttribute("aria-expanded",String(!c)); };
-  let userTouched=false;
-  set(isMobile());
-  btn.addEventListener("click",()=>{ userTouched=true; set(!panel.classList.contains("collapsed")); });
-  window.addEventListener("resize",()=>{ if(!userTouched) set(isMobile()); });
+  const mq=window.matchMedia("(max-width:820px)");
+  const isMobile=()=>mq.matches;
+  const openSheet=()=>{ panel.classList.add("open"); backdrop&&backdrop.classList.add("open");
+    document.body.classList.add("sheet-open"); btn.setAttribute("aria-expanded","true"); };
+  const closeSheet=()=>{ panel.classList.remove("open"); backdrop&&backdrop.classList.remove("open");
+    document.body.classList.remove("sheet-open"); btn.setAttribute("aria-expanded","false"); };
+  const setCollapsed=c=>{ panel.classList.toggle("collapsed",c); btn.setAttribute("aria-expanded",String(!c)); };
+  // 헤더 클릭: 모바일=닫기 / 데스크톱=인라인 토글
+  btn.addEventListener("click",()=>{ isMobile()?closeSheet():setCollapsed(!panel.classList.contains("collapsed")); });
+  fab&&fab.addEventListener("click",openSheet);
+  backdrop&&backdrop.addEventListener("click",closeSheet);
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&isMobile())closeSheet(); });
+  // 모드 초기화/전환 (모바일=닫힘+펼침상태, 데스크톱=사이드바 펼침)
+  const applyMode=()=>{ closeSheet(); panel.classList.remove("collapsed"); };
+  applyMode();
+  mq.addEventListener?mq.addEventListener("change",applyMode):window.addEventListener("resize",applyMode);
 }
 wireInputsToggle();
 init();
