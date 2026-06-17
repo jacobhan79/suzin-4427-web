@@ -359,13 +359,15 @@ function renderValuation(){
 
 function renderCashflow(){
   const r=full(state.method); const row=(l,v,cls="")=>`<tr class="${cls}"><td>${l}</td><td>${v}</td></tr>`;
+  const _b25=building(BASE_YEAR), _land25=A.property.land_area_pyeong*state.landPerPyeong;
+  const _price=r.totalCost-r.acqTax-r.broker-r.legal, _bldgPortion=_price*_b25.val/(_land25+_b25.val);
   document.getElementById("acqTable").innerHTML=`<table><tbody>`
-    +row("매입가",eok(r.totalCost-r.acqTax-r.broker-r.legal))+row(`취득세 등 (${pct(A.acquisition_costs.acquisition_tax_rate)})`,eok(r.acqTax))
+    +row("매입가",eok(_price))+row(`취득세 등 (${pct(A.acquisition_costs.acquisition_tax_rate)})`,eok(r.acqTax))
     +row("중개+법무",eok(r.broker+r.legal))+row("총 취득원가",eok(r.totalCost),"hl")
     +row("− 대출",eok(r.loan))+row("− 임대보증금",eok(r.deposit))+row("자기자본",eok(r.equity))
     +row("+ 적자 사전적립",eok(r.preFund))+row("총 투자원금",eok(r.investPrincipal),"hl")+`</tbody></table>`
-    +`<p class="note"><b>취득세 ${pct(A.acquisition_costs.acquisition_tax_rate)}</b> = 취득세 4.0% + <b>지방교육세 0.4%</b> + 농어촌특별세 0.2% (지방세 이미 포함, 별도 가산 없음). 법인 5년 경과로 취득세 중과 배제 — <b>신설(5년 미만) 법인이면 성남=과밀억제권역이라 중과 8~9%</b> 적용 가능.<br>`
-    +`<b>부가세</b>: 매도자 개인 → 세금계산서 미발행, 환급 불가. 매입가 ${eok(r.totalCost-r.acqTax-r.broker-r.legal)}를 <b>전액 원가</b>로 반영(건물분 부가세 별도 가산·공제 없음, 보수적).</p>`;
+    +`<p class="note"><b>취득세 ${pct(A.acquisition_costs.acquisition_tax_rate)}</b> = 취득세 4.0% + <b>지방교육세 0.4%</b> + 농어촌특별세 0.2% (지방세 이미 포함, 별도 가산 없음). 기존(5년 경과) 법인이라 과밀억제권역 취득세 중과 비대상.<br>`
+    +`<b>부가세</b>: 매도자 개인 → 세금계산서 미발행, 부가세 미발생. 매입가 ${eok(_price)} <b>전액 원가</b>(36억×10% 아님). ※ 부가세는 토지 면세, <b>건물 안분분(약 ${eok(_bldgPortion)})에만 10%(약 ${eok(_bldgPortion*0.1)})</b> — 매도자가 사업자이고 환급 불가일 때만 발생.</p>`;
   document.getElementById("opTable").innerHTML=`<table><tbody>`
     +row("연 임대료",eok(r.annualRent))+row("− 이자",eok(r.interest))+row("− 유지보수+보유세",eok(r.maint+r.ptax))
     +row("연 운영CF",eok(r.opCF),r.opCF<0?"hl":"")
